@@ -5,6 +5,7 @@
   "homepage": "https://dex.raydium.io/",
   "dependencies": {
     "@ant-design/icons": "^4.2.1",
+    "@bastion-multisig/wallet-adapter": "^0.2.8",
     "@craco/craco": "^5.6.4",
     "@ledgerhq/hw-transport-webusb": "^5.41.0",
     "@project-serum/associated-token": "0.1.0",

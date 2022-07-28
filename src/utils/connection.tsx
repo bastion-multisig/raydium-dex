@@ -5,31 +5,32 @@ import { setCache, useAsyncData } from './fetch-loop';
 import tuple from 'immutable-tuple';
 import { ConnectionContextValues, EndpointInfo } from './types';
 
-
 export const endpoints = [
-  // { url: 'https://raydium.rpcpool.com', weight: 30 },
-  { url: 'https://solana-api.tt-prod.net', weight: 100 }
+  { url: 'https://mango.rpcpool.com/', weight: 150 },
+  // { url: 'https://raydium.rpcpool.com', weight: 100 },
+  // { url: 'https://solana-api.tt-prod.net', weight: 100 }
+  // { url: 'https://solana-api.projectserum.com', weight: 100 }
   // { url: 'https://raydium.genesysgo.net', weight: 100 }
-]
+];
 
 export function getRandomEndpoint() {
-  let pointer = 0
-  const random = Math.random() * 100
-  let api = endpoints[0].url
+  let pointer = 0;
+  const random = Math.random() * 100;
+  let api = endpoints[0].url;
 
   for (const endpoint of endpoints) {
     if (random > pointer + endpoint.weight) {
-      pointer += pointer + endpoint.weight
+      pointer += pointer + endpoint.weight;
     } else if (random >= pointer && random < pointer + endpoint.weight) {
-      api = endpoint.url
-      break
+      api = endpoint.url;
+      break;
     } else {
-      api = endpoint.url
-      break
+      api = endpoint.url;
+      break;
     }
   }
 
-  return api
+  return api;
 }
 
 export const ENDPOINTS: EndpointInfo[] = [
@@ -44,9 +45,8 @@ export const ENDPOINTS: EndpointInfo[] = [
 
 const accountListenerCount = new Map();
 
-const ConnectionContext: React.Context<null | ConnectionContextValues> = React.createContext<null | ConnectionContextValues>(
-  null,
-);
+const ConnectionContext: React.Context<null | ConnectionContextValues> =
+  React.createContext<null | ConnectionContextValues>(null);
 
 export function ConnectionProvider({ children }) {
   const [endpoint, setEndpoint] = useLocalStorageState<string>(
@@ -58,12 +58,14 @@ export function ConnectionProvider({ children }) {
   >('customConnectionEndpoints', []);
   const availableEndpoints = ENDPOINTS.concat(customEndpoints);
 
-  const connection = useMemo(() => new Connection(endpoint, 'recent'), [
-    endpoint,
-  ]);
-  const sendConnection = useMemo(() => new Connection(endpoint, 'recent'), [
-    endpoint,
-  ]);
+  const connection = useMemo(
+    () => new Connection(endpoint, 'recent'),
+    [endpoint],
+  );
+  const sendConnection = useMemo(
+    () => new Connection(endpoint, 'recent'),
+    [endpoint],
+  );
 
   // The websocket library solana/web3.js uses closes its websocket connection when the subscription list
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.

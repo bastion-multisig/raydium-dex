@@ -51,6 +51,7 @@ export async function createTokenAccountTransaction({
     TOKEN_PROGRAM_ID,
     mintPublicKey,
     wallet.publicKey,
+    true,
   );
   const transaction = new Transaction();
   transaction.add(
@@ -134,16 +135,14 @@ export async function settleFunds({
       referrerQuoteWallet = new PublicKey(quoteToken?.referrer);
     }
   }
-  const {
-    transaction: settleFundsTransaction,
-    signers: settleFundsSigners,
-  } = await market.makeSettleFundsTransaction(
-    connection,
-    openOrders,
-    baseCurrencyAccountPubkey,
-    quoteCurrencyAccountPubkey,
-    referrerQuoteWallet,
-  );
+  const { transaction: settleFundsTransaction, signers: settleFundsSigners } =
+    await market.makeSettleFundsTransaction(
+      connection,
+      openOrders,
+      baseCurrencyAccountPubkey,
+      quoteCurrencyAccountPubkey,
+      referrerQuoteWallet,
+    );
 
   let transaction = mergeTransactions([
     createAccountTransaction,
@@ -232,15 +231,15 @@ export async function settleAllFunds({
           tokenAccounts,
           baseMint,
           baseMint &&
-          selectedTokenAccounts &&
-          selectedTokenAccounts[baseMint.toBase58()],
+            selectedTokenAccounts &&
+            selectedTokenAccounts[baseMint.toBase58()],
         )?.pubkey;
         const selectedQuoteTokenAccount = getSelectedTokenAccountForMint(
           tokenAccounts,
           quoteMint,
           quoteMint &&
-          selectedTokenAccounts &&
-          selectedTokenAccounts[quoteMint.toBase58()],
+            selectedTokenAccounts &&
+            selectedTokenAccounts[quoteMint.toBase58()],
         )?.pubkey;
         if (!selectedBaseTokenAccount || !selectedQuoteTokenAccount) {
           return null;
@@ -397,26 +396,22 @@ export async function placeOrder({
   const signers: Account[] = [];
 
   if (!baseCurrencyAccount) {
-    const {
-      transaction: createAccountTransaction,
-      newAccountPubkey,
-    } = await createTokenAccountTransaction({
-      connection,
-      wallet,
-      mintPublicKey: market.baseMintAddress,
-    });
+    const { transaction: createAccountTransaction, newAccountPubkey } =
+      await createTokenAccountTransaction({
+        connection,
+        wallet,
+        mintPublicKey: market.baseMintAddress,
+      });
     transaction.add(createAccountTransaction);
     baseCurrencyAccount = newAccountPubkey;
   }
   if (!quoteCurrencyAccount) {
-    const {
-      transaction: createAccountTransaction,
-      newAccountPubkey,
-    } = await createTokenAccountTransaction({
-      connection,
-      wallet,
-      mintPublicKey: market.quoteMintAddress,
-    });
+    const { transaction: createAccountTransaction, newAccountPubkey } =
+      await createTokenAccountTransaction({
+        connection,
+        wallet,
+        mintPublicKey: market.quoteMintAddress,
+      });
     transaction.add(createAccountTransaction);
     quoteCurrencyAccount = newAccountPubkey;
   }
@@ -443,15 +438,13 @@ export async function placeOrder({
   const matchOrderstransaction = market.makeMatchOrdersTransaction(5);
   transaction.add(matchOrderstransaction);
   const startTime = getUnixTs();
-  let {
-    transaction: placeOrderTx,
-    signers: placeOrderSigners,
-  } = await market.makePlaceOrderTransaction(
-    connection,
-    params,
-    120_000,
-    120_000,
-  );
+  let { transaction: placeOrderTx, signers: placeOrderSigners } =
+    await market.makePlaceOrderTransaction(
+      connection,
+      params,
+      120_000,
+      120_000,
+    );
   const endTime = getUnixTs();
   console.log(`Creating order transaction took ${endTime - startTime}`);
   transaction.add(placeOrderTx);
@@ -765,7 +758,7 @@ export async function sendSignedTransaction({
       simulateResult = (
         await simulateTransaction(connection, signedTransaction, 'single')
       ).value;
-    } catch (e) { }
+    } catch (e) {}
     if (simulateResult && simulateResult.err) {
       if (simulateResult.logs) {
         for (let i = simulateResult.logs.length - 1; i >= 0; --i) {
@@ -937,9 +930,9 @@ export async function getMultipleSolanaAccounts(
   if (res.error) {
     throw new Error(
       'failed to get info about accounts ' +
-      publicKeys.map((k) => k.toBase58()).join(', ') +
-      ': ' +
-      res.error.message,
+        publicKeys.map((k) => k.toBase58()).join(', ') +
+        ': ' +
+        res.error.message,
     );
   }
   assert(typeof res.result !== 'undefined');
