@@ -16,7 +16,7 @@ import {
   Orderbook,
   TOKEN_MINTS,
   TokenInstructions,
-} from '@project-serum/serum';
+} from '@bastion-multisig/serum';
 import React, { useContext, useEffect, useState } from 'react';
 import { getCache, setCache } from './fetch-loop';
 import {
@@ -36,9 +36,9 @@ import { useAccountData, useAccountInfo, useConnection } from './connection';
 
 import BN from 'bn.js';
 import RaydiumApi from './raydiumConnector';
-import { Order } from '@project-serum/serum/lib/market';
+import { Order } from '@bastion-multisig/serum/lib/market';
 import { PublicKey, Connection } from '@solana/web3.js';
-import { WRAPPED_SOL_MINT } from '@project-serum/serum/lib/token-instructions';
+import { WRAPPED_SOL_MINT } from '@bastion-multisig/serum/lib/token-instructions';
 import { notify } from './notifications';
 import { sleep } from './utils';
 import tuple from 'immutable-tuple';
@@ -319,8 +319,8 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
 
   const [marketName, setMarketName] = useState('RAY/USDT');
 
-  const [localToken, setLocalToken] = useState(false)
-  const [localMarket, setLocalMarket] = useState(false)
+  const [localToken, setLocalToken] = useState(false);
+  const [localMarket, setLocalMarket] = useState(false);
 
   useEffect(() => {
     const fetchMarket = async () => {
@@ -347,8 +347,8 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
           }
         }
       }
-      console.log('load market over')
-      setLocalMarket(true)
+      console.log('load market over');
+      setLocalMarket(true);
     });
   }, []);
 
@@ -357,7 +357,7 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
     try {
       if (localMarket === null) {
         console.log('no local market');
-        return
+        return;
       }
       const marketData: { [programId: string]: { [market: string]: string } } =
         (JSON.parse(localMarket) ?? {}).data ?? {};
@@ -375,14 +375,12 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
           }
         }
       }
-      console.log('local market over')
-      setLocalMarket(true)
+      console.log('local market over');
+      setLocalMarket(true);
     } catch (e) {
       console.error('local market error', e);
     }
   }, []);
-
-
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -397,7 +395,8 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
         (json ?? {}).data ?? {};
       for (const [mint, symbol] of Object.entries(tokenData)) {
         if (
-          TOKENS[mint] === undefined || !Object.values(TOKENS).find((item) => item.mintAddress === mint)
+          TOKENS[mint] === undefined ||
+          !Object.values(TOKENS).find((item) => item.mintAddress === mint)
         ) {
           TOKENS[mint] = {
             symbol,
@@ -405,8 +404,8 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
           };
         }
       }
-      setLocalToken(true)
-      console.log('load token over')
+      setLocalToken(true);
+      console.log('load token over');
     });
   }, []);
 
@@ -415,14 +414,15 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
     try {
       if (localToken === null) {
         console.log('no local token');
-        return
+        return;
       }
-      const json = JSON.parse(localToken)
+      const json = JSON.parse(localToken);
       const tokenData: { [programId: string]: { [market: string]: string } } =
         (json ?? {}).data ?? {};
       for (const [mint, symbol] of Object.entries(tokenData)) {
         if (
-          TOKENS[mint] === undefined || !Object.values(TOKENS).find((item) => item.mintAddress === mint)
+          TOKENS[mint] === undefined ||
+          !Object.values(TOKENS).find((item) => item.mintAddress === mint)
         ) {
           TOKENS[mint] = {
             symbol,
@@ -430,8 +430,8 @@ export function MarketProvider({ marketAddress, setMarketAddress, children }) {
           };
         }
       }
-      setLocalToken(true)
-      console.log('local token over')
+      setLocalToken(true);
+      console.log('local token over');
     } catch (e) {
       console.error('local token error', e);
     }

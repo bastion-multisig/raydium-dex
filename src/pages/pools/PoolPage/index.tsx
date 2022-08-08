@@ -8,7 +8,7 @@ import {
   decodePoolState,
   isAdminControlledPool,
   PoolInfo,
-} from '@project-serum/pool';
+} from '@bastion-multisig/serum-pool';
 import PoolInfoPanel from './PoolInfoPanel';
 import { parseTokenMintData } from '../../../utils/tokens';
 import PoolCreateRedeemPanel from './PoolCreateRedeemPanel';

@@ -6,7 +6,7 @@ import {
   //  Tag
 } from 'antd';
 import { useFeeDiscountKeys } from '../../utils/markets';
-import { TokenInstructions } from '@project-serum/serum';
+import { TokenInstructions } from '@bastion-multisig/serum';
 import { percentFormat } from '../../utils/utils';
 
 function getFeeRates(feeTier, market) {

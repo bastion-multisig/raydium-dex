@@ -1,4 +1,4 @@
-import { Basket, PoolInfo } from '@project-serum/pool';
+import { Basket, PoolInfo } from '@bastion-multisig/serum-pool';
 import React from 'react';
 import BN from 'bn.js';
 import { PublicKey } from '@solana/web3.js';

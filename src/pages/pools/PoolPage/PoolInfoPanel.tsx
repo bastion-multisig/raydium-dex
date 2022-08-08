@@ -1,4 +1,4 @@
-import { getPoolBasket, PoolInfo } from '@project-serum/pool';
+import { getPoolBasket, PoolInfo } from '@bastion-multisig/serum-pool';
 import React from 'react';
 import FloatingElement from '../../../components/layout/FloatingElement';
 import { Typography } from 'antd';

@@ -6,6 +6,7 @@ import {
   AccountInfo,
   Commitment,
   Connection,
+  Context,
   PublicKey,
   RpcResponseAndContext,
   SimulatedTransactionResponse,
@@ -25,9 +26,9 @@ import {
   OpenOrders,
   parseInstructionErrorResponse,
   TokenInstructions,
-} from '@project-serum/serum';
+} from '@bastion-multisig/serum';
 import { SelectedTokenAccounts, TokenAccount } from './types';
-import { Order } from '@project-serum/serum/lib/market';
+import { Order } from '@bastion-multisig/serum/lib/market';
 import { Buffer } from 'buffer';
 import assert from 'assert';
 import { struct } from 'superstruct';
@@ -392,8 +393,8 @@ export async function placeOrder({
     return;
   }
   const owner = wallet.publicKey;
-  const transaction = new Transaction();
-  const signers: Account[] = [];
+  const initTransaction = new Transaction();
+  const matchTransaction = new Transaction();
 
   if (!baseCurrencyAccount) {
     const { transaction: createAccountTransaction, newAccountPubkey } =
@@ -402,7 +403,7 @@ export async function placeOrder({
         wallet,
         mintPublicKey: market.baseMintAddress,
       });
-    transaction.add(createAccountTransaction);
+    initTransaction.add(createAccountTransaction);
     baseCurrencyAccount = newAccountPubkey;
   }
   if (!quoteCurrencyAccount) {
@@ -412,7 +413,7 @@ export async function placeOrder({
         wallet,
         mintPublicKey: market.quoteMintAddress,
       });
-    transaction.add(createAccountTransaction);
+    initTransaction.add(createAccountTransaction);
     quoteCurrencyAccount = newAccountPubkey;
   }
 
@@ -435,29 +436,38 @@ export async function placeOrder({
   };
   console.log(params);
 
-  const matchOrderstransaction = market.makeMatchOrdersTransaction(5);
-  transaction.add(matchOrderstransaction);
+  const matchOrdersTransaction = market.makeMatchOrdersTransaction(5);
   const startTime = getUnixTs();
-  let { transaction: placeOrderTx, signers: placeOrderSigners } =
-    await market.makePlaceOrderTransaction(
-      connection,
-      params,
-      120_000,
-      120_000,
-    );
+  let { transactions: placeOrderTxs } = await market.makePlaceOrderTransactions(
+    connection,
+    params,
+    120_000,
+    120_000,
+  );
   const endTime = getUnixTs();
   console.log(`Creating order transaction took ${endTime - startTime}`);
-  transaction.add(placeOrderTx);
-  transaction.add(market.makeMatchOrdersTransaction(5));
-  signers.push(...placeOrderSigners);
 
-  return await sendTransaction({
-    transaction,
+  matchTransaction.add(market.makeMatchOrdersTransaction(5));
+  const txs = [
+    { transaction: initTransaction },
+    {
+      transaction: matchOrdersTransaction,
+    },
+    ...placeOrderTxs,
+    { transaction: matchTransaction },
+  ].filter((tx) => tx.transaction.instructions.length);
+  console.log(txs);
+  const signedTransactions = await signTransactions({
+    transactionsAndSigners: txs,
     wallet,
     connection,
-    signers,
-    sendingMessage: 'Sending order...',
   });
+  for (let signedTransaction of signedTransactions) {
+    await sendSignedTransaction({
+      signedTransaction,
+      connection,
+    });
+  }
 }
 
 export async function listMarket({

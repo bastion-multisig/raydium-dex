@@ -4,11 +4,11 @@ import { AccountInfo, Connection, PublicKey } from '@solana/web3.js';
 import { useAllMarkets, useCustomMarkets, useTokenAccounts } from './markets';
 
 import BN from 'bn.js';
-import { TOKEN_MINTS } from '@project-serum/serum';
+import { TOKEN_MINTS } from '@bastion-multisig/serum';
 import { TokenAccount } from './types';
-import { WRAPPED_SOL_MINT } from '@project-serum/serum/lib/token-instructions';
+import { WRAPPED_SOL_MINT } from '@bastion-multisig/serum/lib/token-instructions';
 // @ts-ignore
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep } from 'lodash-es';
 import { getMultipleSolanaAccounts } from './send';
 import tuple from 'immutable-tuple';
 import { useAsyncData } from './fetch-loop';
@@ -30,9 +30,11 @@ export const MINT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(36),
 ]);
 
-export function parseTokenAccountData(
-  data: Buffer,
-): { mint: PublicKey; owner: PublicKey; amount: number } {
+export function parseTokenAccountData(data: Buffer): {
+  mint: PublicKey;
+  owner: PublicKey;
+  amount: number;
+} {
   let { mint, owner, amount } = ACCOUNT_LAYOUT.decode(data);
   return {
     mint: new PublicKey(mint),
@@ -79,14 +81,11 @@ export async function getOwnedTokenAccounts(
   publicKey: PublicKey,
 ): Promise<Array<{ publicKey: PublicKey; accountInfo: AccountInfo<Buffer> }>> {
   let filters = getOwnedAccountsFilters(publicKey);
-  let resp = await connection.getProgramAccounts(
-    TOKEN_PROGRAM_ID,
-    {
-      filters,
-    },
-  );
-  return resp
-    .map(({ pubkey, account: { data, executable, owner, lamports } }) => ({
+  let resp = await connection.getProgramAccounts(TOKEN_PROGRAM_ID, {
+    filters,
+  });
+  return resp.map(
+    ({ pubkey, account: { data, executable, owner, lamports } }) => ({
       publicKey: new PublicKey(pubkey),
       accountInfo: {
         data,
@@ -94,7 +93,8 @@ export async function getOwnedTokenAccounts(
         owner: new PublicKey(owner),
         lamports,
       },
-    }))
+    }),
+  );
 }
 
 export async function getTokenAccountInfo(
@@ -207,46 +207,44 @@ export function useMintInfos(): [
 }
 
 interface Tokens {
-  [key: string]: any
-  [index: number]: any
+  [key: string]: any;
+  [index: number]: any;
 }
 
 export interface TokenInfo {
-  symbol: string
-  name: string
+  symbol: string;
+  name: string;
 
-  mintAddress: string
-  decimals: number
+  mintAddress: string;
+  decimals: number;
 
-  referrer?: string
+  referrer?: string;
 }
-
 
 export function getTokenByMintAddress(mintAddress: string): TokenInfo | null {
   if (mintAddress === NATIVE_SOL.mintAddress) {
-    return cloneDeep(NATIVE_SOL)
+    return cloneDeep(NATIVE_SOL);
   }
 
-  let token = null
+  let token = null;
 
   for (const symbol of Object.keys(TOKENS)) {
-    const info = cloneDeep(TOKENS[symbol])
+    const info = cloneDeep(TOKENS[symbol]);
 
     if (info.mintAddress === mintAddress) {
-      token = info
+      token = info;
     }
   }
 
-  return token
+  return token;
 }
 
 export const NATIVE_SOL: TokenInfo = {
   symbol: 'SOL',
   name: 'Native Solana',
   mintAddress: '11111111111111111111111111111111',
-  decimals: 9
-}
-
+  decimals: 9,
+};
 
 export const TOKENS: Tokens = {
   WSOL: {
@@ -284,4 +282,4 @@ export const TOKENS: Tokens = {
     mintAddress: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',
     referrer: '33XpMmMQRf6tSPpmYyzpwU4uXpZHkFwCZsusD9dMYkjy',
   },
-}
+};
