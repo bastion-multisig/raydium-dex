@@ -6,7 +6,10 @@ import tuple from 'immutable-tuple';
 import { ConnectionContextValues, EndpointInfo } from './types';
 
 export const endpoints = [
-  { url: 'https://mango.rpcpool.com/', weight: 150 },
+  {
+    url: 'https://mango.rpcpool.com/946ef7337da3f5b8d3e4a34e7f88/',
+    weight: 150,
+  },
   // { url: 'https://raydium.rpcpool.com', weight: 100 },
   // { url: 'https://solana-api.tt-prod.net', weight: 100 }
   // { url: 'https://solana-api.projectserum.com', weight: 100 }
