@@ -6,7 +6,6 @@ import {
   AccountInfo,
   Commitment,
   Connection,
-  Context,
   PublicKey,
   RpcResponseAndContext,
   SimulatedTransactionResponse,
